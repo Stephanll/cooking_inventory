@@ -5,7 +5,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/bootstrap/cache/*.php
 /vendor
+/composer.lock
+package-lock.json
 .env
 .env.backup
 .env.production
