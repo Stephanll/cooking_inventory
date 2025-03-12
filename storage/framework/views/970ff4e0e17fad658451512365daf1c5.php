@@ -29,6 +29,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Category</th>
                     <th>Description</th>
                     <th>Ingredients</th>
                     <th>Actions</th>
@@ -38,6 +39,7 @@
                 <?php $__currentLoopData = $recipes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $recipe): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
                         <td><?php echo e($recipe->name); ?></td>
+                        <td><?php echo e($recipe->category); ?></td>
                         <td><?php echo e($recipe->description); ?></td>
                         <td>
                             <ul>
