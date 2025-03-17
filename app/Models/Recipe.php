@@ -9,7 +9,7 @@ class Recipe extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'category', 'description'];
 
     // Relationship with ingredients (through the pivot table)
     public function ingredients()

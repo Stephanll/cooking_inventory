@@ -18,9 +18,19 @@
                 <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="mb-3">
+            <select class="form-control" name="category" required>
+                <option value="">Select Category</option>
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snack</option>
+            </select>
+            </div>
+            <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
             </div>
+            
 
             <!-- Ingredients Section -->
             <div class="mb-3">
@@ -35,6 +45,7 @@
                         </select>
                         <input type="number" class="form-control mb-2" name="quantities[]" step="0.01" placeholder="Quantity" required>
                         <select class="form-control mb-2" name="units[]" required>
+                            <option value="">Select Unit</option>
                             <option value="grams">Grams</option>
                             <option value="liters">Liters</option>
                             <option value="pieces">Pieces</option>

@@ -27,7 +27,8 @@ class RecipeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:recipes,name',
+            'category' => 'required|in:breakfast,lunch,snack,dinner',
             'description' => 'nullable|string',
             'ingredients' => 'required|array',
             'quantities' => 'required|array',
@@ -38,6 +39,7 @@ class RecipeController extends Controller
         // Create the recipe
         $recipe = Recipe::create([
             'name' => $request->name,
+            'category' => $request->category,
             'description' => $request->description,
         ]);
 
@@ -63,7 +65,8 @@ class RecipeController extends Controller
     public function update(Request $request, Recipe $recipe)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:recipes,name,' . $recipe->id,
+            'category' => 'required|in:breakfast,lunch,snack,dinner',
             'description' => 'nullable|string',
             'ingredients' => 'required|array',
             'quantities' => 'required|array',
@@ -74,17 +77,19 @@ class RecipeController extends Controller
         // Update the recipe
         $recipe->update([
             'name' => $request->name,
+            'category' => $request->category,
             'description' => $request->description,
         ]);
 
-        // Sync ingredients (remove old and add new)
-        $recipe->ingredients()->detach();
+        // Sync ingredients with quantities and units
+        $ingredientsData = [];
         foreach ($request->ingredients as $index => $ingredientId) {
-            $recipe->ingredients()->attach($ingredientId, [
+            $ingredientsData[$ingredientId] = [
                 'quantity' => $request->quantities[$index],
                 'unit' => $request->units[$index],
-            ]);
+            ];
         }
+        $recipe->ingredients()->sync($ingredientsData);
 
         return redirect()->route('recipes.index')->with('success', 'Recipe updated successfully.');
     }
@@ -177,6 +182,7 @@ class RecipeController extends Controller
                 auth()->user()->inventory()->create([
                     'ingredient_id' => $ingredient->id,
                     'quantity' => $ingredient->pivot->quantity,
+                    'unit' => $ingredient->pivot->unit,
                 ]);
             }
         }

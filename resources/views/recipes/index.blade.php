@@ -28,6 +28,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Category</th>
                     <th>Description</th>
                     <th>Ingredients</th>
                     <th>Actions</th>
@@ -37,6 +38,7 @@
                 @foreach ($recipes as $recipe)
                     <tr>
                         <td>{{ $recipe->name }}</td>
+                        <td>{{ $recipe->category }}</td>
                         <td>{{ $recipe->description }}</td>
                         <td>
                             <ul>

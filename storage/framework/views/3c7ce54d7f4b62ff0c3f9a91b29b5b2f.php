@@ -19,6 +19,14 @@
                 <input type="text" class="form-control" id="name" name="name" value="<?php echo e($recipe->name); ?>" required>
             </div>
             <div class="mb-3">
+                <select class="form-control" name="category" required>
+                    <option value="breakfast" <?php echo e($recipe->category == 'breakfast' ? 'selected' : ''); ?>>Breakfast</option>
+                    <option value="lunch" <?php echo e($recipe->category == 'lunch' ? 'selected' : ''); ?>>Lunch</option>
+                    <option value="dinner" <?php echo e($recipe->category == 'dinner' ? 'selected' : ''); ?>>Dinner</option>
+                    <option value="snack" <?php echo e($recipe->category == 'snack' ? 'selected' : ''); ?>>Snack</option>
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3"><?php echo e($recipe->description); ?></textarea>
             </div>
@@ -28,7 +36,7 @@
                 <label class="form-label">Ingredients</label>
                 <div id="ingredients-container">
                     <?php $__currentLoopData = $recipe->ingredients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $ingredient): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="ingredient-row mb-3">
+                        <div class="ingredient-row mb-3">         
                             <select class="form-control mb-2" name="ingredients[]" required>
                                 <option value="">Select Ingredient</option>
                                 <?php $__currentLoopData = $ingredients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ing): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -39,11 +47,13 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <input type="number" class="form-control mb-2" name="quantities[]" step="0.01" value="<?php echo e($ingredient->pivot->quantity); ?>" placeholder="Quantity" required>
-                            <select class="form-control" name="units[]" required>
+                            <select class="form-control mb-2" name="units[]" required>
                                 <option value="grams" <?php echo e($ingredient->pivot->unit == 'grams' ? 'selected' : ''); ?>>Grams</option>
                                 <option value="liters" <?php echo e($ingredient->pivot->unit == 'liters' ? 'selected' : ''); ?>>Liters</option>
                                 <option value="pieces" <?php echo e($ingredient->pivot->unit == 'pieces' ? 'selected' : ''); ?>>Pieces</option>
                             </select>
+                             <!-- Remove Button -->
+                            <button type="button" class="btn btn-danger btn-sm remove-ingredient mb-2">Remove ingredient</button>
                         </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
@@ -56,28 +66,40 @@
         </form>
     </div>
 
-    <!-- JavaScript to Add More Ingredients -->
+
     <script>
+        // Add event listener for removing ingredients
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-ingredient')) {
+                if (confirm('Are you sure you want to remove this ingredient?')) {
+                    event.target.closest('.ingredient-row').remove();
+                }
+            }
+        });
+
+        // Add event listener for adding ingredients
         document.getElementById('add-ingredient').addEventListener('click', function () {
             const container = document.getElementById('ingredients-container');
             const newRow = document.createElement('div');
             newRow.classList.add('ingredient-row', 'mb-3');
             newRow.innerHTML = `
-                <select class="form-control" name="ingredients[]" required>
+                <select class="form-control mb-2" name="ingredients[]" required>
                     <option value="">Select Ingredient</option>
                     <?php $__currentLoopData = $ingredients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ingredient): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <option value="<?php echo e($ingredient->id); ?>"><?php echo e($ingredient->name); ?></option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-                <input type="number" class="form-control" name="quantities[]" step="0.01" placeholder="Quantity" required>
-                <select class="form-control" name="units[]" required>
+                <input type="number" class="form-control mb-2" name="quantities[]" step="0.01" placeholder="Quantity" required>
+                <select class="form-control mb-2" name="units[]" required>
                     <option value="grams">Grams</option>
                     <option value="liters">Liters</option>
                     <option value="pieces">Pieces</option>
                 </select>
+                <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove ingredient</button>
             `;
             container.appendChild(newRow);
         });
     </script>
+
 </body>
 </html><?php /**PATH C:\Users\steph\ingredient-tracker\resources\views/recipes/edit.blade.php ENDPATH**/ ?>
