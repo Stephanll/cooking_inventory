@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ShoppingList;
 use Illuminate\Http\Request;
 
 class ShoppingListController extends Controller
