@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShoppingList;
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 
 class ShoppingListController extends Controller
@@ -75,5 +76,42 @@ class ShoppingListController extends Controller
         }
 
         return redirect()->route('shopping-list.index')->with('success', 'Shopping list items moved to inventory.');
+    }
+
+    public function updateFromRecipe(Request $request)
+    {
+        // Fetch the recipe
+        $recipe = Recipe::findOrFail($request->recipe_id);
+    
+        // Get the missing ingredients
+        $missingIngredients = $recipe->canMake(auth()->user()->inventory)['missingIngredients'];
+    
+        // Add missing ingredients to the shopping list
+        foreach ($missingIngredients as $missing) {
+            // Calculate the quantity to add
+            $quantityToAdd = $missing['required'] - $missing['available'];
+            // Check if the ingredient already exists in the shopping list
+            $existingItem = ShoppingList::where('user_id', auth()->id())
+                ->where('ingredient_id', $missing['ingredient_id'])
+                ->first();
+    
+            if ($existingItem) {
+                // Update the quantity if the ingredient already exists
+                $existingItem->update([
+                    'quantity' => $existingItem->quantity + $missing['required'],
+                ]);
+            } else {
+                // Create a new entry if the ingredient doesn't exist
+                ShoppingList::create([
+                    'user_id' => auth()->id(),
+                    'ingredient_id' => $missing['ingredient_id'],
+                    'quantity' => $quantityToAdd,
+                    'unit' => $missing['unit'],
+                ]);
+            }
+        }
+    
+        // Redirect back with a success message
+        return redirect()->route('recipes.feasible')->with('success', 'Shopping cart updated successfully!');
     }
 }

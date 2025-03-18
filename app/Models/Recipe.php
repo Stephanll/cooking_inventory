@@ -40,6 +40,8 @@ class Recipe extends Model
                     'name' => $ingredient->name,
                     'required' => $ingredient->pivot->quantity,
                     'available' => $inventoryItem ? $inventoryItem->quantity : 0,
+                    'unit' => $ingredient->pivot->unit,
+                    'ingredient_id' => $ingredient->id, 
                 ];
                 $canMake = false;
     
