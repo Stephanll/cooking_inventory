@@ -13,6 +13,24 @@
         <a href="<?php echo e(route('inventory.create')); ?>" class="btn btn-primary mb-3">Add New Inventory Item</a>
         <a href="<?php echo e(route('recipes.index')); ?>" class="btn btn-success mb-3">Go to Recipes</a>
         <a href="<?php echo e(route('shopping-list.index')); ?>" class="btn btn-secondary mb-3">Go to shopping list</a>
+        <!-- Add Ingredient Button -->
+        <button id="add-ingredient-button" class="btn btn-primary mb-3">Add Ingredient</button>
+
+        <!-- Add Ingredient Form (Initially Hidden) -->
+        <div id="add-ingredient-form" style="display: none;">
+            <form action="<?php echo e(route('ingredients.store')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="form-group">
+                    <label for="name">Ingredient Name</label>
+                    <input type="text" name="name" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <input type="text" name="category" id="category" class="form-control mb-2" required>
+                </div>
+                <button type="submit" class="btn btn-success mb-2">Save</button>
+            </form>
+        </div>
 
         <?php if(session('success')): ?>
             <div id="flash-message" class="alert alert-success">
@@ -64,6 +82,10 @@
                     flashMessage.style.display = 'none';
                 }, 3000); // 3000 milliseconds =  seconds
             }
+        });
+        document.getElementById('add-ingredient-button').addEventListener('click', function () {
+            const form = document.getElementById('add-ingredient-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
         });
     </script>
 </body>

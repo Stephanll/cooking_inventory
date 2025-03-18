@@ -48,6 +48,12 @@
                                 </li>
                             @endforeach
                         </ul>
+                        <!-- Add "Update Shopping Cart" Button -->
+                        <form action="{{ route('shopping-list.update-from-recipe') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="recipe_id" value="{{ $feasibleRecipe['recipe']->id }}">
+                            <button type="submit" class="btn btn-warning">Update Shopping Cart</button>
+                        </form>
                     </div>
                     @endif
 

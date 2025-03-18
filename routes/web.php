@@ -12,7 +12,7 @@ Route::get('/recipes/feasible', [RecipeController::class, 'feasible'])->name('re
 
 Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index')->middleware('auth');
 
-
+Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
 
 Route::resource('recipes', RecipeController::class)->middleware('auth');
 
@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/shopping-list', [ShoppingListController::class, 'store'])->name('shopping-list.store');
     Route::post('/shopping-list/finish', [ShoppingListController::class, 'finishShopping'])->name('shopping-list.finish')->middleware('auth');
     Route::delete('/shopping-list/{shoppingList}', [ShoppingListController::class, 'destroy'])->name('shopping-list.destroy');
+    Route::post('/shopping-list/update-from-recipe', [ShoppingListController::class, 'updateFromRecipe'])->name('shopping-list.update-from-recipe');
 });
 
 

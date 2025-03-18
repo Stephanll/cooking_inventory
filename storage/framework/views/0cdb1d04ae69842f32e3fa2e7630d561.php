@@ -50,6 +50,12 @@
                                 </li>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </ul>
+                        <!-- Add "Update Shopping Cart" Button -->
+                        <form action="<?php echo e(route('shopping-list.update-from-recipe')); ?>" method="POST">
+                            <?php echo csrf_field(); ?>
+                            <input type="hidden" name="recipe_id" value="<?php echo e($feasibleRecipe['recipe']->id); ?>">
+                            <button type="submit" class="btn btn-warning">Update Shopping Cart</button>
+                        </form>
                     </div>
                     <?php endif; ?>
 

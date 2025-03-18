@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Recipe;
 use App\Models\Ingredient;
+use App\Models\ShoppingList;
 use App\Models\User;
 
 class RecipeControllerTest extends TestCase
@@ -129,5 +130,53 @@ class RecipeControllerTest extends TestCase
 
         // Assert: The response contains validation errors
         $response->assertSessionHasErrors(['name', 'category', 'ingredients', 'quantities', 'units']);
+    }
+
+    public function test_updateFromRecipe_adds_missing_ingredients_to_shopping_list()
+    {
+        // Arrange: Create a user and authenticate them
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Arrange: Create ingredients
+        $flour = Ingredient::factory()->create(['name' => 'Flour']);
+        $sugar = Ingredient::factory()->create(['name' => 'Sugar']);
+
+        // Arrange: Create a recipe that requires 500g flour and 200g sugar
+        $recipe = Recipe::factory()->create(['name' => 'Pancakes']);
+        $recipe->ingredients()->attach([
+            $flour->id => ['quantity' => 500, 'unit' => 'grams'],
+            $sugar->id => ['quantity' => 200, 'unit' => 'grams'],
+        ]);
+
+        // Arrange: Add some ingredients to the user's inventory (but not enough)
+        $user->inventory()->create([
+            'ingredient_id' => $flour->id,
+            'quantity' => 300, // 200g short
+            'unit' => 'grams',
+        ]);
+        // Note: No sugar in the inventory, so 200g sugar is missing
+
+        // Act: Call the updateFromRecipe endpoint
+        $response = $this->post(route('shopping-list.update-from-recipe'), [
+            'recipe_id' => $recipe->id,
+        ]);
+
+        // Assert: The response redirects to the feasible page
+        $response->assertRedirect(route('recipes.feasible'));
+
+        // Assert: The missing ingredients are added to the shopping list
+        $this->assertDatabaseHas('shopping_lists', [
+            'user_id' => $user->id,
+            'ingredient_id' => $flour->id,
+            'quantity' => 200, // 500g required - 300g available = 200g needed
+            'unit' => 'grams',
+        ]);
+        $this->assertDatabaseHas('shopping_lists', [
+            'user_id' => $user->id,
+            'ingredient_id' => $sugar->id,
+            'quantity' => 200, // 200g required - 0g available = 200g needed
+            'unit' => 'grams',
+        ]);
     }
 }
