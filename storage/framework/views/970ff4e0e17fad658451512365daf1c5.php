@@ -7,6 +7,65 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+        <!-- Navigation Headers -->
+        <div class="container mt-3">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-4">
+            <!-- App Title with Custom Chef Hat SVG Logo (Linked to Inventory) -->
+            <a href="<?php echo e(route('inventory.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                <!-- Chef Hat SVG Logo -->
+                <img src="<?php echo e(asset('images/chef-svgrepo-com.svg')); ?>" alt="Chef Hat Logo" style="width: 40px; height: 40px;">
+                <!-- App Title -->
+                <h1 class="mb-0" style="font-size: 1.8rem; font-weight: 600; color: inherit;">Cooking Manager</h1>
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="d-flex gap-3">
+                <a href="<?php echo e(route('inventory.index')); ?>" class="nav-link-custom <?php echo e(request()->routeIs('inventory.index') ? 'active' : ''); ?>">
+                    <i class="bi bi-box"></i> Inventory
+                </a>
+                <a href="<?php echo e(route('shopping-list.index')); ?>" class="nav-link-custom <?php echo e(request()->routeIs('shopping-list.index') ? 'active' : ''); ?>">
+                    <i class="bi bi-cart"></i> Shopping List
+                </a>
+                <a href="<?php echo e(route('recipes.index')); ?>" class="nav-link-custom <?php echo e(request()->routeIs('recipes.index') ? 'active' : ''); ?>">
+                    <i class="bi bi-book"></i> Recipes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        .nav-link-custom {
+            text-decoration: none;
+            color: black;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        a.text-decoration-none {
+           color: black; /* Force text color to stay black */
+        }
+
+        .nav-link-custom i {
+            font-size: 1.2rem;
+        }
+
+        .nav-link-custom.active {
+            border: 2px solid rgba(0, 123, 255, 0.5); /* Transparent blue box */
+            background: rgba(0, 123, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .nav-link-custom:hover {
+            color: #007bff;
+        }
+    </style>
+    
     <div class="container mt-5">
         <h1 class="mb-4">Recipes</h1>
         <a href="<?php echo e(route('recipes.feasible')); ?>" class="btn btn-info mb-3">Check Feasible Recipes</a>

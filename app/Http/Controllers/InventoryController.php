@@ -30,26 +30,49 @@ class InventoryController extends Controller
     // Store a new inventory item
     public function store(Request $request)
     {
-        // Validate the request
         $request->validate([
-            'ingredient_id' => 'required|exists:ingredients,id',
+            'ingredient_name' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0',
-            'unit' => 'required|in:liters,grams,pieces',
-            'expiration_date' => 'required|date',
+            'unit' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'expiration_date' => 'nullable|date',
         ]);
 
+        // Check if this user already has this ingredient in their inventory
+        $existingInventory = auth()->user()->inventory()
+            ->whereHas('ingredient', function($query) use ($request) {
+                $query->where('name', $request->ingredient_name);
+            })->first();
+
+        if ($existingInventory) {
+            return response()->json([
+                'error' => 'You already have this ingredient in your inventory. Please update the existing item.'
+            ], 422);
+        }
+
+        // Find or create the ingredient
+        $ingredient = Ingredient::firstOrCreate(
+            ['name' => $request->ingredient_name],
+            ['category' => $request->category]
+        );
+
         // Create the inventory item
-        auth()->user()->inventory()->create([
-            'ingredient_id' => $request->ingredient_id,
+        $inventoryItem = Inventory::create([
+            'ingredient_id' => $ingredient->id,
             'quantity' => $request->quantity,
             'unit' => $request->unit,
             'expiration_date' => $request->expiration_date,
+            'user_id' => auth()->id(),
         ]);
 
-        return redirect()->route('inventory.index')
-                         ->with('success', 'Inventory item added successfully.');
+        return response()->json([
+            'id' => $inventoryItem->id,
+            'ingredient' => $ingredient,
+            'quantity' => $inventoryItem->quantity,
+            'unit' => $inventoryItem->unit,
+            'expiration_date' => $inventoryItem->expiration_date,
+        ]);
     }
-
     // Show the form to edit an inventory item
     public function edit(Inventory $inventory)
     {
@@ -58,52 +81,65 @@ class InventoryController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Get all ingredients for the dropdown
-        $ingredients = Ingredient::all();
-
-        return view('inventory.edit', compact('inventory', 'ingredients'));
+        // Return the inventory item data as JSON
+        return response()->json([
+            'id' => $inventory->id,
+            'ingredient' => $inventory->ingredient,
+            'quantity' => $inventory->quantity,
+            'unit' => $inventory->unit,
+            'expiration_date' => $inventory->expiration_date,
+        ]);
     }
 
     // Update an inventory item
     public function update(Request $request, Inventory $inventory)
     {
-        // Ensure the user can only update their own inventory
+        // Authorization check
         if ($inventory->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
-
-        // Validate the request
+    
         $request->validate([
-            'ingredient_id' => 'required|exists:ingredients,id',
+            'ingredient_name' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0',
-            'unit' => 'required|in:liters,grams,pieces',
+            'unit' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
             'expiration_date' => 'required|date',
         ]);
-
+    
+        // Update the ingredient
+        $inventory->ingredient->update([
+            'name' => $request->ingredient_name,
+            'category' => $request->category,
+        ]);
+    
         // Update the inventory item
         $inventory->update([
-            'ingredient_id' => $request->ingredient_id,
             'quantity' => $request->quantity,
             'unit' => $request->unit,
             'expiration_date' => $request->expiration_date,
         ]);
-
-        return redirect()->route('inventory.index')
-                         ->with('success', 'Inventory item updated successfully.');
+    
+        return response()->json([
+            'id' => $inventory->id,
+            'ingredient' => $inventory->ingredient,
+            'quantity' => $inventory->quantity,
+            'unit' => $inventory->unit,
+            'expiration_date' => $inventory->expiration_date,
+        ]);
     }
 
     // Delete an inventory item
     public function destroy(Inventory $inventory)
     {
-        // Ensure the user can only delete their own inventory
+        // Authorization check
         if ($inventory->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Delete the inventory item
+        // Only delete the inventory item, not the ingredient
         $inventory->delete();
 
-        return redirect()->route('inventory.index')
-                         ->with('success', 'Inventory item deleted successfully.');
+        return response()->json(['success' => true]);
     }
 }

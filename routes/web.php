@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ShoppingListController;
+use App\Http\Controllers\IngredientController;
 
 // Recipe routes
 
@@ -12,13 +13,24 @@ Route::get('/recipes/feasible', [RecipeController::class, 'feasible'])->name('re
 
 Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index')->middleware('auth');
 
+Route::delete('/ingredients/{ingredient}', [IngredientController::class, 'destroy']);
+
 Route::post('/ingredients', [IngredientController::class, 'store'])->name('ingredients.store');
 
 Route::resource('recipes', RecipeController::class)->middleware('auth');
 
+Route::get('/ingredients/search', [IngredientController::class, 'search'])->name('ingredients.search');
+
 Route::middleware('auth')->group(function () {
     Route::resource('inventory', InventoryController::class);
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::delete('/inventory/{id}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+    // Edit inventory item route
+    Route::get('/inventory/{inventory}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+    // Update inventory item route
+    Route::put('/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
 });
+
 
 Route::resource('recipes', RecipeController::class)->middleware('auth');
 
@@ -47,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/shopping-list/{shoppingList}', [ShoppingListController::class, 'destroy'])->name('shopping-list.destroy');
     Route::post('/shopping-list/update-from-recipe', [ShoppingListController::class, 'updateFromRecipe'])->name('shopping-list.update-from-recipe');
 });
+
 
 
 require __DIR__.'/auth.php';
